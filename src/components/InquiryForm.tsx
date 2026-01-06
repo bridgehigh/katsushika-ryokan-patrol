@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CheckCircle, Send, ArrowLeft } from "lucide-react";
+import { submitInquiry } from "@/app/actions";
 
 type FormState = "input" | "confirm" | "success";
 type InquiryType = "application" | "estimate" | "inquiry";
@@ -24,6 +25,7 @@ const INQUIRY_TYPES: { id: InquiryType; label: string }[] = [
 
 export default function InquiryForm() {
     const [state, setState] = useState<FormState>("input");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState<FormData>({
         facilityName: "",
         companyName: "",
@@ -55,9 +57,19 @@ export default function InquiryForm() {
     };
 
     const submitForm = async () => {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setState("success");
+        setIsSubmitting(true);
+        try {
+            const result = await submitInquiry(formData);
+            if (result.success) {
+                setState("success");
+            } else {
+                alert(result.message); // Simple error handling for now
+            }
+        } catch (error) {
+            alert("エラーが発生しました");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (state === "success") {
@@ -131,10 +143,11 @@ export default function InquiryForm() {
                         </button>
                         <button
                             onClick={submitForm}
-                            className="flex-1 py-3 px-6 rounded-full bg-patrol-accent text-white font-bold hover:bg-orange-600 transition-colors shadow-md flex items-center justify-center gap-2"
+                            disabled={isSubmitting}
+                            className="flex-1 py-3 px-6 rounded-full bg-patrol-accent text-white font-bold hover:bg-orange-600 transition-colors shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <Send className="w-5 h-5" />
-                            送信する
+                            {isSubmitting ? "送信中..." : "送信する"}
                         </button>
                     </div>
                 </div>
