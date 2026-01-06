@@ -4,20 +4,33 @@ import { useState } from "react";
 import { CheckCircle, Send, ArrowLeft } from "lucide-react";
 
 type FormState = "input" | "confirm" | "success";
+type InquiryType = "application" | "estimate" | "inquiry";
 
 interface FormData {
     facilityName: string;
+    companyName: string;
     name: string;
     email: string;
+    phone: string;
+    type: InquiryType | "";
     message: string;
 }
+
+const INQUIRY_TYPES: { id: InquiryType; label: string }[] = [
+    { id: "application", label: "お申し込み" },
+    { id: "estimate", label: "お見積もり依頼" },
+    { id: "inquiry", label: "お問い合わせ" },
+];
 
 export default function InquiryForm() {
     const [state, setState] = useState<FormState>("input");
     const [formData, setFormData] = useState<FormData>({
         facilityName: "",
+        companyName: "",
         name: "",
         email: "",
+        phone: "",
+        type: "",
         message: "",
     });
 
@@ -30,7 +43,13 @@ export default function InquiryForm() {
 
     const toConfirm = (e: React.FormEvent) => {
         e.preventDefault();
-        if (formData.facilityName && formData.name && formData.email) {
+        if (
+            formData.facilityName &&
+            formData.name &&
+            formData.email &&
+            formData.phone &&
+            formData.type
+        ) {
             setState("confirm");
         }
     };
@@ -68,9 +87,21 @@ export default function InquiryForm() {
                 <div className="space-y-6">
                     <div className="bg-brand-50 p-6 rounded-lg space-y-4">
                         <div>
-                            <label className="text-sm text-brand-500 block mb-1">施設名・法人名</label>
+                            <label className="text-sm text-brand-500 block mb-1">お問い合わせ種別</label>
+                            <p className="text-brand-800 font-medium text-lg">
+                                {INQUIRY_TYPES.find(t => t.id === formData.type)?.label}
+                            </p>
+                        </div>
+                        <div>
+                            <label className="text-sm text-brand-500 block mb-1">施設名</label>
                             <p className="text-brand-800 font-medium text-lg">{formData.facilityName}</p>
                         </div>
+                        {formData.companyName && (
+                            <div>
+                                <label className="text-sm text-brand-500 block mb-1">法人名</label>
+                                <p className="text-brand-800 font-medium text-lg">{formData.companyName}</p>
+                            </div>
+                        )}
                         <div>
                             <label className="text-sm text-brand-500 block mb-1">ご担当者名</label>
                             <p className="text-brand-800 font-medium text-lg">{formData.name}</p>
@@ -78,6 +109,10 @@ export default function InquiryForm() {
                         <div>
                             <label className="text-sm text-brand-500 block mb-1">メールアドレス</label>
                             <p className="text-brand-800 font-medium text-lg">{formData.email}</p>
+                        </div>
+                        <div>
+                            <label className="text-sm text-brand-500 block mb-1">電話番号</label>
+                            <p className="text-brand-800 font-medium text-lg">{formData.phone}</p>
                         </div>
                         <div>
                             <label className="text-sm text-brand-500 block mb-1">お問い合わせ内容</label>
@@ -106,8 +141,30 @@ export default function InquiryForm() {
             ) : (
                 <form onSubmit={toConfirm} className="space-y-6">
                     <div>
+                        <label className="block text-brand-700 font-medium mb-3">
+                            お問い合わせ種別 <span className="text-red-500 text-sm">*</span>
+                        </label>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            {INQUIRY_TYPES.map((type) => (
+                                <label key={type.id} className="flex items-center gap-2 cursor-pointer p-3 rounded-lg border border-brand-200 hover:bg-brand-50 has-[:checked]:bg-brand-50 has-[:checked]:border-patrol-secondary transition-all">
+                                    <input
+                                        type="radio"
+                                        name="type"
+                                        value={type.id}
+                                        checked={formData.type === type.id}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-4 h-4 text-patrol-secondary border-gray-300 focus:ring-patrol-secondary"
+                                    />
+                                    <span className="text-brand-800">{type.label}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div>
                         <label htmlFor="facilityName" className="block text-brand-700 font-medium mb-2">
-                            施設名・法人名 <span className="text-red-500 text-sm">*</span>
+                            施設名 <span className="text-red-500 text-sm">*</span>
                         </label>
                         <input
                             required
@@ -120,6 +177,22 @@ export default function InquiryForm() {
                             placeholder="例：民宿かつしか"
                         />
                     </div>
+
+                    <div>
+                        <label htmlFor="companyName" className="block text-brand-700 font-medium mb-2">
+                            法人名
+                        </label>
+                        <input
+                            type="text"
+                            id="companyName"
+                            name="companyName"
+                            value={formData.companyName}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 rounded-lg border border-brand-200 focus:border-patrol-secondary focus:ring-2 focus:ring-patrol-secondary/20 outline-none transition-all bg-brand-50/50"
+                            placeholder="例：株式会社葛飾観光（個人の場合は空欄）"
+                        />
+                    </div>
+
                     <div>
                         <label htmlFor="name" className="block text-brand-700 font-medium mb-2">
                             ご担当者名 <span className="text-red-500 text-sm">*</span>
@@ -135,21 +208,40 @@ export default function InquiryForm() {
                             placeholder="例：葛飾 太郎"
                         />
                     </div>
-                    <div>
-                        <label htmlFor="email" className="block text-brand-700 font-medium mb-2">
-                            メールアドレス <span className="text-red-500 text-sm">*</span>
-                        </label>
-                        <input
-                            required
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-lg border border-brand-200 focus:border-patrol-secondary focus:ring-2 focus:ring-patrol-secondary/20 outline-none transition-all bg-brand-50/50"
-                            placeholder="mail@example.com"
-                        />
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label htmlFor="email" className="block text-brand-700 font-medium mb-2">
+                                メールアドレス <span className="text-red-500 text-sm">*</span>
+                            </label>
+                            <input
+                                required
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-lg border border-brand-200 focus:border-patrol-secondary focus:ring-2 focus:ring-patrol-secondary/20 outline-none transition-all bg-brand-50/50"
+                                placeholder="mail@example.com"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="phone" className="block text-brand-700 font-medium mb-2">
+                                電話番号 <span className="text-red-500 text-sm">*</span>
+                            </label>
+                            <input
+                                required
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-lg border border-brand-200 focus:border-patrol-secondary focus:ring-2 focus:ring-patrol-secondary/20 outline-none transition-all bg-brand-50/50"
+                                placeholder="03-1234-5678"
+                            />
+                        </div>
                     </div>
+
                     <div>
                         <label htmlFor="message" className="block text-brand-700 font-medium mb-2">
                             お問い合わせ内容

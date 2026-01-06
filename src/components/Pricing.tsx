@@ -34,15 +34,11 @@ export default function Pricing() {
                             </li>
                             <li className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-patrol-primary" />
-                                <span className="text-brand-700">巡回報告書の作成（LINE/メール）</span>
+                                <span className="text-brand-700">巡回報告書の作成</span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <Check className="w-5 h-5 text-patrol-primary" />
                                 <span className="text-brand-700">緊急時の即時連絡</span>
-                            </li>
-                            <li className="flex items-center gap-3">
-                                <Check className="w-5 h-5 text-patrol-primary" />
-                                <span className="text-brand-700">ゴミ拾い・簡易清掃</span>
                             </li>
                         </ul>
 
