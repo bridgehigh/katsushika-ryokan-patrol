@@ -10,6 +10,13 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-brand-50: #fdf8f6;
+  --color-brand-100: #f2e8e5;
+  --color-brand-500: #9f8f8a;
+  --color-brand-800: #3e3836;
+  --color-patrol-primary: #4ade80;
+  --color-patrol-secondary: #3b82f6;
+  --color-patrol-accent: #f97316;
 }
 
 @media (prefers-color-scheme: dark) {
