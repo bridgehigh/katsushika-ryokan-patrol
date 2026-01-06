@@ -49,12 +49,13 @@ export async function submitInquiry(data: InquiryData): Promise<FormState> {
             throw new Error("データベースへの保存に失敗しました");
         }
 
-        // 2. Send Email via Resend
-        const { error: emailError } = await resend.emails.send({
-            from: "Katsushika Patrol <onboarding@resend.dev>", // Or your verified domain
-            to: ["contact@gururito.co.jp"],
-            subject: `【新規お問い合わせ】${data.facilityName}様より`,
-            html: `
+        // 2. Send Email via Resend (Only if API key is present)
+        if (resendApiKey) {
+            const { error: emailError } = await resend.emails.send({
+                from: "Katsushika Patrol <onboarding@resend.dev>", // Or your verified domain
+                to: ["contact@gururito.co.jp"],
+                subject: `【新規お問い合わせ】${data.facilityName}様より`,
+                html: `
         <h2>新しいお問い合わせがありました</h2>
         <p><strong>お問い合わせ種別:</strong> ${getInquiryLabel(data.type)}</p>
         <hr />
@@ -70,12 +71,15 @@ export async function submitInquiry(data: InquiryData): Promise<FormState> {
         <h3>お問い合わせ内容</h3>
         <p style="white-space: pre-wrap;">${data.message || "なし"}</p>
       `,
-        });
+            });
 
-        if (emailError) {
-            console.error("Resend Error:", emailError);
-            // We don't throw here if DB save was successful, but warning is needed
-            // throw new Error("メール送信に失敗しました");
+            if (emailError) {
+                console.error("Resend Error:", emailError);
+                // We don't throw here if DB save was successful, but warning is needed
+                // throw new Error("メール送信に失敗しました");
+            }
+        } else {
+            console.log("Resend API Key is missing. Skipping email sending.");
         }
 
         return { success: true, message: "送信が完了しました" };
